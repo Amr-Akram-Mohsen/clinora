@@ -1,0 +1,308 @@
+/*
+ * RegisterPage.css — Registration page styles.
+ */
+
+.register-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+  background-color: var(--color-surface-base);
+}
+
+@media (min-width: 1024px) {
+  .register-page {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ---- Left panel: branding ---- */
+.register-page__brand {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--spacing-12);
+  background: linear-gradient(
+    145deg,
+    hsl(216, 80%, 18%) 0%,
+    hsl(216, 85%, 28%) 40%,
+    hsl(230, 75%, 38%) 100%
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .register-page__brand {
+    display: flex;
+  }
+}
+
+/* Decorative background shapes */
+.register-page__brand::before {
+  content: "";
+  position: absolute;
+  top: -100px;
+  right: -60px;
+  width: 420px;
+  height: 420px;
+  background: hsla(180, 80%, 55%, 0.12);
+  border-radius: var(--radius-full);
+}
+
+.register-page__brand::after {
+  content: "";
+  position: absolute;
+  bottom: -60px;
+  left: -40px;
+  width: 320px;
+  height: 320px;
+  background: hsla(250, 85%, 70%, 0.1);
+  border-radius: var(--radius-full);
+}
+
+.register-page__brand-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  position: relative;
+  z-index: 1;
+}
+
+.register-page__brand-logo-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: hsla(0, 0%, 100%, 0.15);
+  border: 1px solid hsla(0, 0%, 100%, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(0, 0%, 100%);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.register-page__brand-name {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: hsl(0, 0%, 100%);
+  letter-spacing: -0.01em;
+}
+
+.register-page__brand-content {
+  position: relative;
+  z-index: 1;
+}
+
+.register-page__brand-heading {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: hsl(0, 0%, 100%);
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--spacing-4);
+  letter-spacing: -0.02em;
+}
+
+.register-page__brand-subheading {
+  font-size: var(--font-size-base);
+  color: hsla(0, 0%, 100%, 0.75);
+  line-height: var(--line-height-relaxed);
+  max-width: 420px;
+}
+
+.register-page__brand-features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-8);
+}
+
+.register-page__brand-feature {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  color: hsla(0, 0%, 100%, 0.85);
+  font-size: var(--font-size-sm);
+}
+
+.register-page__brand-feature-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: hsl(142, 70%, 58%);
+  flex-shrink: 0;
+}
+
+.register-page__brand-tagline {
+  position: relative;
+  z-index: 1;
+  font-size: var(--font-size-xs);
+  color: hsla(0, 0%, 100%, 0.45);
+}
+
+/* ---- Right panel: form ---- */
+.register-page__form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-6) var(--spacing-4);
+  overflow-y: auto;
+}
+
+.register-page__form-container {
+  width: 100%;
+  max-width: 480px;
+  padding: var(--spacing-4) 0;
+}
+
+/* Mobile logo */
+.register-page__mobile-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-6);
+}
+
+@media (min-width: 1024px) {
+  .register-page__mobile-logo {
+    display: none;
+  }
+}
+
+.register-page__mobile-logo-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-brand-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-on-brand);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+}
+
+.register-page__mobile-logo-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.register-page__heading {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-2);
+  letter-spacing: -0.02em;
+}
+
+.register-page__subheading {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-6);
+}
+
+.register-page__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.register-page__form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-4);
+}
+
+@media (min-width: 640px) {
+  .register-page__form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.register-page__select {
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--spacing-3);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  outline: none;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.register-page__select:focus-visible {
+  border-color: var(--color-brand-500);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.register-page__form-error {
+  padding: var(--spacing-3) var(--spacing-4);
+  background-color: var(--color-status-error-bg);
+  border: 1px solid var(--color-status-error-border);
+  border-radius: var(--radius-md);
+  color: var(--color-status-error-text);
+  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  animation: register-form-error-in var(--transition-base) ease;
+}
+
+@keyframes register-form-error-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.register-page__footer-prompt {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-2);
+}
+
+.register-page__link {
+  color: var(--color-brand-500);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.register-page__link:hover {
+  text-decoration: underline;
+}
+
+.register-page__theme-toggle {
+  position: fixed;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-default);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  z-index: 10;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.register-page__theme-toggle:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.register-page__theme-toggle:focus-visible {
+  box-shadow: var(--shadow-focus-ring);
+}

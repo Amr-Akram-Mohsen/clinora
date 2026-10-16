@@ -1,0 +1,102 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clinora-backend"
+version = "0.1.0"
+description = "Clinora clinical management platform — backend"
+requires-python = ">=3.12"
+dependencies = [
+    # Web framework
+    "fastapi==0.115.5",
+    "uvicorn[standard]==0.32.1",
+
+    # Database
+    "sqlalchemy[asyncio]==2.0.36",
+    "asyncpg==0.30.0",
+    "alembic==1.14.0",
+
+    # Validation / settings
+    "pydantic[email]==2.10.3",
+    "pydantic-settings==2.6.1",
+    "email-validator>=2.0.0",
+
+    # Auth / security
+    "passlib[bcrypt]==1.7.4",
+    "bcrypt==4.0.1",
+    "python-jose[cryptography]==3.3.0",
+
+
+    # Utilities
+    "python-multipart==0.0.18",   # form data (file uploads later)
+    "httpx==0.27.2",              # async HTTP client (AI adapters, tests)
+    "python-dotenv==1.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    # Testing
+    "pytest==8.3.4",
+    "pytest-asyncio==0.24.0",
+    "pytest-cov==6.0.0",
+    "httpx==0.27.2",
+    "factory-boy==3.3.1",
+
+    # Type checking
+    "mypy==1.13.0",
+    "sqlalchemy[mypy]==2.0.36",
+
+    # Code quality
+    "ruff==0.8.4",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["api*", "application*", "domain*", "infrastructure*", "ai*", "analytics*", "core*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+testpaths = ["tests"]
+addopts = "--cov=. --cov-report=term-missing"
+
+[tool.coverage.run]
+omit = ["tests/*", "migrations/*", "scripts/*"]
+
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+exclude = ["migrations"]
+plugins = ["sqlalchemy.ext.mypy.plugin"]
+
+
+[[tool.mypy.overrides]]
+module = [
+    "tests.*",
+    "tests",
+    "scripts.*",
+    "scripts",
+    "migrations.*",
+    "migrations",
+    "factory",
+    "factory.*",
+    "passlib",
+    "passlib.*",
+    "jose",
+    "jose.*",
+]
+ignore_errors = true
+
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+ignore = ["B008", "UP046"]  # B008: FastAPI Depends(), UP046: Generic[T] compatibility
+

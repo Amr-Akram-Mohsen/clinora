@@ -1,0 +1,109 @@
+/*
+ * Modal.css — Accessible modal dialog styles.
+ */
+
+/* Backdrop/scrim */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-overlay-scrim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-4);
+  z-index: var(--z-index-modal);
+  animation: modal-backdrop-in var(--transition-base) ease;
+}
+
+@keyframes modal-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Dialog panel */
+.modal {
+  background-color: var(--color-surface-overlay);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-height: calc(100vh - var(--spacing-16));
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  animation: modal-in var(--transition-base) ease;
+  position: relative;
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Size modifiers */
+.modal--sm  { max-width: 400px; }
+.modal--md  { max-width: 560px; }
+.modal--lg  { max-width: 720px; }
+.modal--xl  { max-width: 900px; }
+
+/* Sections */
+.modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  padding: var(--spacing-6);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.modal__title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-snug);
+}
+
+.modal__close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+  border: none;
+  background: none;
+}
+
+.modal__close:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-hover);
+}
+
+.modal__close:focus-visible {
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.modal__body {
+  padding: var(--spacing-6);
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4) var(--spacing-6);
+  border-top: 1px solid var(--color-border-subtle);
+}

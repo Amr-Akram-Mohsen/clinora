@@ -1,0 +1,276 @@
+/*
+ * tokens.css
+ *
+ * Central design-token system for Clinora.
+ * All visual values — colors, spacing, typography, radii, shadows,
+ * transitions — are defined here as CSS custom properties.
+ *
+ * Rules:
+ * - Component CSS files MUST NOT define arbitrary color/spacing/radius/shadow values.
+ * - All visual primitives come from these tokens.
+ * - Dark mode is implemented via [data-theme="dark"] on <html>.
+ *   Overriding only the tokens that change in dark mode keeps the diff minimal.
+ *
+ * Token categories:
+ * --color-brand-*      Primary/accent palette (HSL)
+ * --color-surface-*    Background hierarchy
+ * --color-text-*       Text hierarchy
+ * --color-border-*     Borders and dividers
+ * --color-status-*     Semantic status (success/warning/error/info)
+ * --color-overlay-*    Scrim and modal overlays
+ * --spacing-*          4px base scale
+ * --radius-*           Border radii
+ * --shadow-*           Elevation and focus rings
+ * --font-family-*      Font stacks
+ * --font-size-*        Type scale
+ * --font-weight-*      Font weights
+ * --line-height-*      Line heights
+ * --transition-*       Animation durations and easings
+ * --z-index-*          Stacking contexts
+ */
+
+/* ============================================================
+   LIGHT THEME (default)
+   ============================================================ */
+:root {
+  /* --- Brand --- */
+  --color-brand-50:  hsl(216, 100%, 96%);
+  --color-brand-100: hsl(216, 100%, 91%);
+  --color-brand-200: hsl(216, 95%, 83%);
+  --color-brand-300: hsl(216, 90%, 72%);
+  --color-brand-400: hsl(216, 85%, 60%);
+  --color-brand-500: hsl(216, 80%, 50%);   /* Primary action */
+  --color-brand-600: hsl(216, 80%, 43%);   /* Primary hover */
+  --color-brand-700: hsl(216, 80%, 35%);
+  --color-brand-800: hsl(216, 80%, 26%);
+  --color-brand-900: hsl(216, 80%, 18%);
+
+  /* --- Surfaces (background hierarchy) --- */
+  --color-surface-base:      hsl(210, 20%, 98%);   /* Page background */
+  --color-surface-raised:    hsl(0, 0%, 100%);     /* Cards, panels */
+  --color-surface-overlay:   hsl(0, 0%, 100%);     /* Modals */
+  --color-surface-sunken:    hsl(210, 18%, 95%);   /* Input backgrounds, code blocks */
+  --color-surface-hover:     hsl(210, 18%, 93%);   /* Hover on list items */
+  --color-surface-selected:  hsl(216, 100%, 95%);  /* Selected/active item */
+  --color-surface-disabled:  hsl(210, 10%, 93%);
+
+  /* --- Text --- */
+  --color-text-primary:    hsl(215, 25%, 10%);
+  --color-text-secondary:  hsl(215, 15%, 35%);
+  --color-text-muted:      hsl(215, 10%, 55%);
+  --color-text-disabled:   hsl(215, 10%, 70%);
+  --color-text-inverse:    hsl(0, 0%, 100%);
+  --color-text-brand:      var(--color-brand-600);
+  --color-text-on-brand:   hsl(0, 0%, 100%);
+
+  /* --- Borders --- */
+  --color-border-default:  hsl(210, 14%, 89%);
+  --color-border-strong:   hsl(210, 14%, 75%);
+  --color-border-focus:    var(--color-brand-500);
+  --color-border-error:    hsl(0, 72%, 55%);
+  --color-border-subtle:   hsl(210, 18%, 95%);
+
+  /* --- Status: Success --- */
+  --color-status-success-bg:     hsl(142, 76%, 94%);
+  --color-status-success-text:   hsl(142, 60%, 22%);
+  --color-status-success-border: hsl(142, 60%, 70%);
+  --color-status-success-icon:   hsl(142, 60%, 38%);
+
+  /* --- Status: Warning --- */
+  --color-status-warning-bg:     hsl(40, 100%, 93%);
+  --color-status-warning-text:   hsl(40, 80%, 20%);
+  --color-status-warning-border: hsl(40, 80%, 65%);
+  --color-status-warning-icon:   hsl(40, 85%, 42%);
+
+  /* --- Status: Error --- */
+  --color-status-error-bg:     hsl(0, 86%, 95%);
+  --color-status-error-text:   hsl(0, 65%, 25%);
+  --color-status-error-border: hsl(0, 65%, 70%);
+  --color-status-error-icon:   hsl(0, 72%, 50%);
+
+  /* --- Status: Info --- */
+  --color-status-info-bg:     hsl(200, 100%, 93%);
+  --color-status-info-text:   hsl(200, 70%, 20%);
+  --color-status-info-border: hsl(200, 70%, 65%);
+  --color-status-info-icon:   hsl(200, 75%, 40%);
+
+  /* --- Status: Neutral --- */
+  --color-status-neutral-bg:     hsl(210, 12%, 93%);
+  --color-status-neutral-text:   hsl(210, 12%, 30%);
+  --color-status-neutral-border: hsl(210, 12%, 70%);
+
+  /* --- AI Indicator (distinct from physician-recorded data) --- */
+  --color-ai-bg:     hsl(280, 80%, 95%);
+  --color-ai-text:   hsl(280, 60%, 25%);
+  --color-ai-border: hsl(280, 60%, 72%);
+  --color-ai-icon:   hsl(280, 65%, 48%);
+
+  /* --- Overlays --- */
+  --color-overlay-scrim:  hsla(215, 25%, 10%, 0.5);
+  --color-overlay-glass:  hsla(0, 0%, 100%, 0.8);
+
+  /* ============================================================
+     SPACING (4px base scale)
+     ============================================================ */
+  --spacing-0:   0;
+  --spacing-px:  1px;
+  --spacing-0-5: 2px;
+  --spacing-1:   4px;
+  --spacing-1-5: 6px;
+  --spacing-2:   8px;
+  --spacing-2-5: 10px;
+  --spacing-3:   12px;
+  --spacing-4:   16px;
+  --spacing-5:   20px;
+  --spacing-6:   24px;
+  --spacing-7:   28px;
+  --spacing-8:   32px;
+  --spacing-10:  40px;
+  --spacing-12:  48px;
+  --spacing-16:  64px;
+  --spacing-20:  80px;
+  --spacing-24:  96px;
+
+  /* ============================================================
+     BORDER RADII
+     ============================================================ */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  24px;
+  --radius-full: 9999px;
+
+  /* ============================================================
+     SHADOWS & FOCUS RING
+     ============================================================ */
+  --shadow-xs: 0 1px 2px hsla(215, 25%, 10%, 0.05);
+  --shadow-sm: 0 1px 3px hsla(215, 25%, 10%, 0.08), 0 1px 2px hsla(215, 25%, 10%, 0.06);
+  --shadow-md: 0 4px 6px hsla(215, 25%, 10%, 0.07), 0 2px 4px hsla(215, 25%, 10%, 0.06);
+  --shadow-lg: 0 10px 15px hsla(215, 25%, 10%, 0.08), 0 4px 6px hsla(215, 25%, 10%, 0.05);
+  --shadow-xl: 0 20px 25px hsla(215, 25%, 10%, 0.1),  0 8px 10px hsla(215, 25%, 10%, 0.06);
+
+  /* Focus ring — used for keyboard navigation visibility */
+  --shadow-focus-ring: 0 0 0 3px hsla(216, 80%, 50%, 0.35);
+  --shadow-focus-ring-error: 0 0 0 3px hsla(0, 72%, 50%, 0.30);
+
+  /* ============================================================
+     TYPOGRAPHY
+     ============================================================ */
+  --font-family-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-family-mono: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+
+  --font-size-xs:   0.75rem;    /* 12px */
+  --font-size-sm:   0.875rem;   /* 14px */
+  --font-size-base: 1rem;       /* 16px */
+  --font-size-lg:   1.125rem;   /* 18px */
+  --font-size-xl:   1.25rem;    /* 20px */
+  --font-size-2xl:  1.5rem;     /* 24px */
+  --font-size-3xl:  1.875rem;   /* 30px */
+  --font-size-4xl:  2.25rem;    /* 36px */
+
+  --font-weight-normal:   400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+
+  --line-height-tight:  1.25;
+  --line-height-snug:   1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed:1.625;
+
+  /* ============================================================
+     TRANSITIONS
+     ============================================================ */
+  --transition-fast:   100ms ease;
+  --transition-base:   200ms ease;
+  --transition-slow:   300ms ease;
+  --transition-slower: 500ms ease;
+
+  /* ============================================================
+     Z-INDEX
+     ============================================================ */
+  --z-index-base:     0;
+  --z-index-raised:   10;
+  --z-index-dropdown: 100;
+  --z-index-sticky:   200;
+  --z-index-overlay:  300;
+  --z-index-modal:    400;
+  --z-index-toast:    500;
+  --z-index-tooltip:  600;
+}
+
+/* ============================================================
+   DARK THEME
+   Applied via [data-theme="dark"] on <html>
+   Only overrides tokens that differ from light theme.
+   ============================================================ */
+[data-theme="dark"] {
+  /* Brand stays close but slightly adjusted for dark backgrounds */
+  --color-brand-500: hsl(216, 85%, 60%);
+  --color-brand-600: hsl(216, 85%, 70%);
+
+  /* Surfaces */
+  --color-surface-base:     hsl(216, 20%, 10%);
+  --color-surface-raised:   hsl(216, 18%, 14%);
+  --color-surface-overlay:  hsl(216, 18%, 16%);
+  --color-surface-sunken:   hsl(216, 22%, 8%);
+  --color-surface-hover:    hsl(216, 18%, 18%);
+  --color-surface-selected: hsl(216, 40%, 20%);
+  --color-surface-disabled: hsl(216, 14%, 18%);
+
+  /* Text */
+  --color-text-primary:   hsl(215, 20%, 90%);
+  --color-text-secondary: hsl(215, 15%, 65%);
+  --color-text-muted:     hsl(215, 10%, 48%);
+  --color-text-disabled:  hsl(215, 10%, 35%);
+  --color-text-brand:     var(--color-brand-500);
+
+  /* Borders */
+  --color-border-default: hsl(215, 16%, 22%);
+  --color-border-strong:  hsl(215, 16%, 32%);
+  --color-border-subtle:  hsl(215, 18%, 14%);
+
+  /* Status: Success */
+  --color-status-success-bg:     hsl(142, 50%, 14%);
+  --color-status-success-text:   hsl(142, 60%, 68%);
+  --color-status-success-border: hsl(142, 50%, 25%);
+
+  /* Status: Warning */
+  --color-status-warning-bg:     hsl(40, 70%, 14%);
+  --color-status-warning-text:   hsl(40, 80%, 65%);
+  --color-status-warning-border: hsl(40, 65%, 28%);
+
+  /* Status: Error */
+  --color-status-error-bg:     hsl(0, 60%, 14%);
+  --color-status-error-text:   hsl(0, 70%, 70%);
+  --color-status-error-border: hsl(0, 55%, 28%);
+
+  /* Status: Info */
+  --color-status-info-bg:     hsl(200, 60%, 12%);
+  --color-status-info-text:   hsl(200, 80%, 68%);
+  --color-status-info-border: hsl(200, 55%, 24%);
+
+  /* Status: Neutral */
+  --color-status-neutral-bg:     hsl(210, 14%, 16%);
+  --color-status-neutral-text:   hsl(210, 14%, 70%);
+  --color-status-neutral-border: hsl(210, 14%, 28%);
+
+  /* AI indicator */
+  --color-ai-bg:     hsl(280, 50%, 14%);
+  --color-ai-text:   hsl(280, 70%, 74%);
+  --color-ai-border: hsl(280, 50%, 28%);
+  --color-ai-icon:   hsl(280, 65%, 62%);
+
+  /* Overlays */
+  --color-overlay-scrim: hsla(215, 30%, 5%, 0.7);
+  --color-overlay-glass: hsla(216, 18%, 14%, 0.85);
+
+  /* Shadows (lighter in dark mode — contrast is reversed) */
+  --shadow-xs: 0 1px 2px hsla(0, 0%, 0%, 0.2);
+  --shadow-sm: 0 1px 3px hsla(0, 0%, 0%, 0.3), 0 1px 2px hsla(0, 0%, 0%, 0.2);
+  --shadow-md: 0 4px 6px hsla(0, 0%, 0%, 0.28), 0 2px 4px hsla(0, 0%, 0%, 0.22);
+  --shadow-lg: 0 10px 15px hsla(0, 0%, 0%, 0.3), 0 4px 6px hsla(0, 0%, 0%, 0.2);
+  --shadow-xl: 0 20px 25px hsla(0, 0%, 0%, 0.4), 0 8px 10px hsla(0, 0%, 0%, 0.25);
+}

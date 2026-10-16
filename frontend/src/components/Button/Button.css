@@ -1,0 +1,129 @@
+/*
+ * Button.css
+ * Styles for the Button component.
+ * All visual values use design tokens — no hardcoded colors or spacing.
+ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    opacity var(--transition-fast);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.btn:focus-visible {
+  box-shadow: var(--shadow-focus-ring);
+}
+
+/* --- Sizes --- */
+.btn--sm {
+  padding: var(--spacing-1) var(--spacing-3);
+  font-size: var(--font-size-xs);
+}
+
+.btn--md {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-sm);
+}
+
+.btn--lg {
+  padding: var(--spacing-3) var(--spacing-6);
+  font-size: var(--font-size-base);
+}
+
+/* --- Variants --- */
+.btn--primary {
+  background-color: var(--color-brand-500);
+  border-color: var(--color-brand-500);
+  color: var(--color-text-on-brand);
+}
+.btn--primary:hover:not(:disabled) {
+  background-color: var(--color-brand-600);
+  border-color: var(--color-brand-600);
+}
+.btn--primary:active:not(:disabled) {
+  background-color: var(--color-brand-700);
+}
+
+.btn--secondary {
+  background-color: var(--color-surface-raised);
+  border-color: var(--color-border-default);
+  color: var(--color-text-primary);
+}
+.btn--secondary:hover:not(:disabled) {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+}
+
+.btn--ghost {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--color-text-secondary);
+}
+.btn--ghost:hover:not(:disabled) {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.btn--danger {
+  background-color: var(--color-status-error-bg);
+  border-color: var(--color-status-error-border);
+  color: var(--color-status-error-text);
+}
+.btn--danger:hover:not(:disabled) {
+  background-color: var(--color-status-error-border);
+  color: var(--color-text-inverse);
+}
+
+/* --- States --- */
+.btn:disabled,
+.btn--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn--loading {
+  cursor: wait;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* --- Full width --- */
+.btn--full-width {
+  width: 100%;
+}
+
+/* --- Spinner inside button --- */
+.btn__spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: var(--radius-full);
+  animation: btn-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}

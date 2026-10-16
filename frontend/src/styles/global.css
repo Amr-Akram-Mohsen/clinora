@@ -1,0 +1,76 @@
+/*
+ * global.css
+ *
+ * Base styles applied globally after tokens and reset.
+ * Sets the body typography, background, and text using design tokens.
+ * Component-specific styles live in their own CSS files.
+ */
+
+body {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-base);
+  min-height: 100vh;
+  transition:
+    background-color var(--transition-slow),
+    color var(--transition-slow);
+}
+
+/* Link base style */
+a:hover {
+  color: var(--color-text-brand);
+}
+
+/* Code / monospace blocks */
+code,
+pre,
+kbd {
+  font-family: var(--font-family-mono);
+  font-size: 0.9em;
+}
+
+/* Scrollbar styling (webkit) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface-sunken);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* Selection highlight */
+::selection {
+  background: var(--color-brand-200);
+  color: var(--color-brand-800);
+}
+
+[data-theme="dark"] ::selection {
+  background: var(--color-brand-700);
+  color: var(--color-brand-100);
+}
+
+/* Screen-reader only utility — used where visual hiding is needed */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
