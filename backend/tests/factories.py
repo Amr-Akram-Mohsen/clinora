@@ -66,3 +66,16 @@ class RefreshTokenFactory(factory.Factory):
     )
     revoked_at = None
     replaced_by = None
+
+
+class PatientFactory(factory.Factory):
+    class Meta:
+        model = "infrastructure.database.models.patient.Patient"
+
+    id = LazyFunction(uuid.uuid4)
+    organization_id = LazyFunction(uuid.uuid4)
+    full_name = factory.Sequence(lambda n: f"Patient {n}")
+    date_of_birth = factory.LazyFunction(lambda: datetime(1990, 1, 1).date())
+    gender = "MALE"
+    phone = factory.Sequence(lambda n: f"+1555{n:06d}")
+    is_active = True
