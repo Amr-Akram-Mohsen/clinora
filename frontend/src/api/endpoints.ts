@@ -21,4 +21,23 @@ export const ENDPOINTS = {
     logout: `${API_BASE}/auth/logout`,
     me: `${API_BASE}/auth/me`,
   },
+
+  patients: {
+    list: `${API_BASE}/patients`,
+    create: `${API_BASE}/patients`,
+    detail: (id: string) => `${API_BASE}/patients/${id}`,
+    allergies: (id: string) => `${API_BASE}/patients/${id}/allergies`,
+    visits: (id: string) => `${API_BASE}/patients/${id}/visits`,
+    observations: (id: string) => `${API_BASE}/patients/${id}/observations`,
+    prescriptions: (id: string) => `${API_BASE}/patients/${id}/prescriptions`,
+  },
+
+  visits: {
+    create: `${API_BASE}/visits`,
+    detail: (id: string) => `${API_BASE}/visits/${id}`,
+    update: (id: string) => `${API_BASE}/visits/${id}`,
+    sign: (id: string) => `${API_BASE}/visits/${id}/sign`,
+    observations: (id: string) => `${API_BASE}/visits/${id}/observations`,
+    prescriptions: (id: string) => `${API_BASE}/visits/${id}/prescriptions`,
+  },
 } as const;

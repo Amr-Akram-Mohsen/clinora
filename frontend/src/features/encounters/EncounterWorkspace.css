@@ -1,0 +1,164 @@
+.encounter-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.encounter-workspace__header {
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-5) var(--spacing-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.encounter-workspace__patient-info h1 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-1);
+}
+
+.encounter-workspace__patient-meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+}
+
+.encounter-workspace__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+/* Locked Banner */
+.encounter-workspace__locked-banner {
+  background-color: var(--color-surface-selected);
+  border: 1px solid var(--color-brand-300);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-800);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+/* Vitals Strip */
+.encounter-workspace__vitals-card {
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.encounter-workspace__vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--spacing-3);
+}
+
+/* SOAP Notes Grid */
+.encounter-workspace__soap-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-6);
+}
+
+@media (max-width: 900px) {
+  .encounter-workspace__soap-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.encounter-workspace__soap-box {
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.encounter-workspace__soap-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.encounter-workspace__soap-badge {
+  width: 22px;
+  height: 22px;
+  background-color: var(--color-brand-500);
+  color: #ffffff;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+}
+
+.encounter-workspace__textarea {
+  width: 100%;
+  min-height: 140px;
+  padding: var(--spacing-3);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-sunken);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  resize: vertical;
+  outline: none;
+}
+
+.encounter-workspace__textarea:focus {
+  border-color: var(--color-brand-500);
+}
+
+.encounter-workspace__textarea:disabled {
+  background-color: var(--color-surface-disabled);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+/* Prescription Builder */
+.encounter-workspace__rx-card {
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.encounter-workspace__rx-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  gap: var(--spacing-3);
+  align-items: flex-end;
+}
+
+@media (max-width: 900px) {
+  .encounter-workspace__rx-form {
+    grid-template-columns: 1fr;
+  }
+}

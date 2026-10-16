@@ -1,0 +1,107 @@
+.patient-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.patient-list__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.patient-list__title-group h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-1);
+}
+
+.patient-list__title-group p {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.patient-list__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  background-color: var(--color-surface-raised);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.patient-list__search-input {
+  flex: 1;
+  max-width: 400px;
+  height: 40px;
+  padding: 0 var(--spacing-3);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-sunken);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  outline: none;
+}
+
+.patient-list__search-input:focus {
+  border-color: var(--color-brand-500);
+}
+
+/* Table */
+.patient-list__table-container {
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.patient-list__table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.patient-list__table th {
+  padding: var(--spacing-3) var(--spacing-4);
+  background-color: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.patient-list__table td {
+  padding: var(--spacing-3) var(--spacing-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.patient-list__row {
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.patient-list__row:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.patient-list__patient-name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.patient-list__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+}
