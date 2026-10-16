@@ -12,6 +12,7 @@
 ---
 
 ## Phase 2 — Clinical Core (Next Phase)
+> See detailed execution plan: [`docs/phase_2_implementation_plan.md`](./phase_2_implementation_plan.md)
 - **Purpose**: Longitudinal patient record management, appointments, clinical visits, observations, medications, and prescriptions.
 - **Domain Entities**: `Patient`, `Appointment`, `Visit`, `Observation`, `Prescription`, `Treatment`.
 - **Backend Changes**:
