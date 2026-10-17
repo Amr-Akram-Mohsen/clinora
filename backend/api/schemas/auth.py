@@ -86,6 +86,7 @@ class UserRead(BaseModel):
     full_name: str
     organization_id: uuid.UUID
     is_active: bool
+    is_verified: bool
     roles: list[str]   # Role names list, derived from user_roles
     created_at: datetime
 
@@ -93,7 +94,6 @@ class UserRead(BaseModel):
 
     @classmethod
     def from_orm_user(cls, user: User) -> UserRead:
-
         """
         Explicit factory from ORM User — avoids implicit orm_mode surprises
         and makes the mapping intentional.
@@ -104,6 +104,44 @@ class UserRead(BaseModel):
             full_name=user.full_name,
             organization_id=user.organization_id,
             is_active=user.is_active,
+            is_verified=user.is_verified,
             roles=user.role_names,
             created_at=user.created_at,
         )
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        return v.lower().strip()
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str = Field(min_length=16, max_length=255)
+    new_password: str = Field(min_length=8, max_length=128)
+
+
+class VerifyEmailRequest(BaseModel):
+    token: str = Field(min_length=16, max_length=255)
+
+
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        return v.lower().strip()
+
+
+class GoogleAuthRequest(BaseModel):
+    credential: str = Field(min_length=10, description="Google OAuth 2.0 ID Token / JWT credential")
+
+
+class MessageResponse(BaseModel):
+    message: str
+    success: bool = True
+

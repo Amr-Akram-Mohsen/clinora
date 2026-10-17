@@ -11,6 +11,7 @@ export interface User {
   full_name: string;
   organization_id: string;
   is_active: boolean;
+  is_verified: boolean;
   roles: string[];
   created_at: string; // ISO-8601 UTC string
 }
@@ -32,6 +33,32 @@ export interface RegisterRequest {
   full_name: string;
   organization_name?: string;
   role?: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  new_password: string;
+}
+
+export interface VerifyEmailRequest {
+  token: string;
+}
+
+export interface ResendVerificationRequest {
+  email: string;
+}
+
+export interface GoogleAuthRequest {
+  credential: string;
+}
+
+export interface MessageResponse {
+  message: string;
+  success: boolean;
 }
 
 /**

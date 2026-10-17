@@ -30,7 +30,18 @@ from api.deps import (
     get_refresh_token_from_cookie,
     get_request_context,
 )
-from api.schemas.auth import LoginRequest, RegisterRequest, TokenResponse, UserRead
+from api.schemas.auth import (
+    ForgotPasswordRequest,
+    GoogleAuthRequest,
+    LoginRequest,
+    MessageResponse,
+    RegisterRequest,
+    ResendVerificationRequest,
+    ResetPasswordRequest,
+    TokenResponse,
+    UserRead,
+    VerifyEmailRequest,
+)
 from application.auth.auth_service import AuthService, RequestContext
 from core.config import settings
 from core.errors import AuthenticationError
@@ -194,3 +205,118 @@ async def logout(
 async def get_me(current_user: ActiveUser) -> UserRead:
     """Return the authenticated user's profile."""
     return UserRead.from_orm_user(current_user)
+
+
+@router.post(
+    "/forgot-password",
+    response_model=MessageResponse,
+    status_code=http_status.HTTP_200_OK,
+)
+async def forgot_password(
+    body: ForgotPasswordRequest,
+    request: Request,
+    session: DbSession,
+) -> MessageResponse:
+    """
+    Request password reset recovery link.
+    Always returns success to prevent email enumeration.
+    """
+    ctx = _make_request_context(request)
+    service = AuthService(session)
+    await service.request_password_reset(body.email, ctx)
+    return MessageResponse(
+        message="If an account exists with that email, a password reset link has been dispatched."
+    )
+
+
+@router.post(
+    "/reset-password",
+    response_model=MessageResponse,
+    status_code=http_status.HTTP_200_OK,
+)
+async def reset_password(
+    body: ResetPasswordRequest,
+    request: Request,
+    session: DbSession,
+) -> MessageResponse:
+    """
+    Reset account password using the emailed token.
+    Revokes existing refresh token sessions.
+    """
+    ctx = _make_request_context(request)
+    service = AuthService(session)
+    await service.reset_password(body.token, body.new_password, ctx)
+    return MessageResponse(
+        message="Password has been successfully updated. You may now log in with your new credentials."
+    )
+
+
+@router.post(
+    "/verify-email",
+    response_model=MessageResponse,
+    status_code=http_status.HTTP_200_OK,
+)
+async def verify_email(
+    body: VerifyEmailRequest,
+    request: Request,
+    session: DbSession,
+) -> MessageResponse:
+    """
+    Verify user email address using the emailed verification token.
+    """
+    ctx = _make_request_context(request)
+    service = AuthService(session)
+    await service.verify_email(body.token, ctx)
+    return MessageResponse(
+        message="Email address verified successfully. You may now log in."
+    )
+
+
+@router.post(
+    "/resend-verification",
+    response_model=MessageResponse,
+    status_code=http_status.HTTP_200_OK,
+)
+async def resend_verification(
+    body: ResendVerificationRequest,
+    request: Request,
+    session: DbSession,
+) -> MessageResponse:
+    """
+    Resend email verification link.
+    Always returns success to prevent email enumeration.
+    """
+    ctx = _make_request_context(request)
+    service = AuthService(session)
+    await service.resend_verification_email(body.email, ctx)
+    return MessageResponse(
+        message="If an unverified account exists with that email, a verification link has been sent."
+    )
+
+
+@router.post(
+    "/google",
+    response_model=TokenResponse,
+    status_code=http_status.HTTP_200_OK,
+)
+async def google_auth(
+    body: GoogleAuthRequest,
+    request: Request,
+    response: Response,
+    session: DbSession,
+) -> TokenResponse:
+    """
+    Authenticate or register a user via Google OAuth 2.0 credential / ID token.
+    Returns an access token (JSON body) and sets a refresh token cookie.
+    """
+    ctx = _make_request_context(request)
+    service = AuthService(session)
+    result = await service.authenticate_google_user(body.credential, ctx)
+
+    _set_refresh_cookie(response, result.refresh_token)
+
+    return TokenResponse(
+        access_token=result.access_token,
+        token_type="bearer",
+        expires_in=settings.access_token_expire_minutes * 60,
+    )

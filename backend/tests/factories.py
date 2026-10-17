@@ -50,6 +50,7 @@ class UserFactory(factory.Factory):
     full_name = factory.Sequence(lambda n: f"Test User {n}")
     is_active = True
     is_superuser = False
+    is_verified = True
 
 
 class RefreshTokenFactory(factory.Factory):

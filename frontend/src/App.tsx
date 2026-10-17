@@ -10,6 +10,9 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/features/auth/AuthProvider";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { RegisterPage } from "@/features/auth/RegisterPage";
+import { ForgotPasswordPage } from "@/features/auth/ForgotPasswordPage";
+import { ResetPasswordPage } from "@/features/auth/ResetPasswordPage";
+import { VerifyEmailPage } from "@/features/auth/VerifyEmailPage";
 import { AppShell } from "@/components/Layout/AppShell";
 import { DashboardPage } from "@/features/dashboard/DashboardPage";
 import { PatientListPage } from "@/features/patients/PatientListPage";
@@ -38,6 +41,11 @@ function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/signup" element={<Navigate to="/register" replace />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
+      <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+      <Route path="/resend-verification" element={<VerifyEmailPage />} />
 
       {/* Protected Clinical Workstation Routes */}
       <Route

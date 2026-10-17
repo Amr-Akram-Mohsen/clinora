@@ -27,6 +27,8 @@ from core.config import get_settings
 from infrastructure.database.base import Base
 from infrastructure.database.models import *  # noqa: F401,F403 — ensure all models registered
 
+from sqlalchemy.pool import NullPool
+
 # ---------------------------------------------------------------------------
 # Test database URL
 # ---------------------------------------------------------------------------
@@ -42,16 +44,13 @@ _TEST_DB_URL = os.getenv(
 # Engine / schema fixtures
 # ---------------------------------------------------------------------------
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture
 async def engine():
     """Create a test engine and apply the full schema once per test session."""
-    _engine = create_async_engine(_TEST_DB_URL, echo=False)
+    _engine = create_async_engine(_TEST_DB_URL, echo=False, poolclass=NullPool)
     async with _engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     yield _engine
-    async with _engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
     await _engine.dispose()
 
 
@@ -71,9 +70,12 @@ async def session(engine) -> AsyncGenerator[AsyncSession, None]:
 
     yield _session
 
-    await _session.close()
-    await trans.rollback()
-    await connection.close()
+    try:
+        await _session.close()
+    finally:
+        if trans.is_active:
+            await trans.rollback()
+        await connection.close()
 
 
 @pytest_asyncio.fixture

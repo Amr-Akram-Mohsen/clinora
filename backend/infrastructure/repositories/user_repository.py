@@ -102,3 +102,44 @@ class UserRepository:
         self._session.add(organization)
         await self._session.flush()
         return organization
+
+    async def find_by_verification_token(self, token: str) -> User | None:
+        """Find an active user by email verification token, eagerly loading roles."""
+        stmt = (
+            select(User)
+            .where(User.verification_token == token)
+            .options(
+                selectinload(User.user_roles).selectinload(UserRole.role)
+            )
+        )
+        result = await self._session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def find_by_reset_token(self, token: str) -> User | None:
+        """Find an active user by password reset token, eagerly loading roles."""
+        stmt = (
+            select(User)
+            .where(User.password_reset_token == token)
+            .options(
+                selectinload(User.user_roles).selectinload(UserRole.role)
+            )
+        )
+        result = await self._session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def find_by_google_id(self, google_id: str) -> User | None:
+        """Find a user by their Google OAuth subject ID, eagerly loading roles."""
+        stmt = (
+            select(User)
+            .where(User.google_id == google_id)
+            .options(
+                selectinload(User.user_roles).selectinload(UserRole.role)
+            )
+        )
+        result = await self._session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def update_user(self, user: User) -> User:
+        """Flush changes to a modified User entity."""
+        await self._session.flush()
+        return user

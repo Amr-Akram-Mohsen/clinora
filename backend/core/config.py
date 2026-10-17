@@ -49,6 +49,20 @@ class Settings(BaseSettings):
     storage_backend: str = "local"
     storage_local_root: str = "./storage/uploads"
 
+    # Mail Dispatcher
+    mail_server: str = "smtp.gmail.com"
+    mail_port: int = 587
+    mail_use_tls: bool = True
+    mail_username: str | None = None
+    mail_password: str | None = None
+    mail_default_sender: str = "noreply@clinora.com"
+    mail_enabled: bool = False
+
+    # Google OAuth 2.0
+    google_client_id: str | None = None
+    google_client_secret: str | None = None
+    frontend_url: str = "http://localhost:5173"
+
     @field_validator("app_env")
     @classmethod
     def validate_env(cls, v: str) -> str:

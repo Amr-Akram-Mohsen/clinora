@@ -20,6 +20,11 @@ export const ENDPOINTS = {
     refresh: `${API_BASE}/auth/refresh`,
     logout: `${API_BASE}/auth/logout`,
     me: `${API_BASE}/auth/me`,
+    forgotPassword: `${API_BASE}/auth/forgot-password`,
+    resetPassword: `${API_BASE}/auth/reset-password`,
+    verifyEmail: `${API_BASE}/auth/verify-email`,
+    resendVerification: `${API_BASE}/auth/resend-verification`,
+    google: `${API_BASE}/auth/google`,
   },
 
   patients: {

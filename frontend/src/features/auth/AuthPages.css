@@ -1,0 +1,182 @@
+/**
+ * features/auth/AuthPages.css
+ *
+ * Shared styling for recovery and verification flows:
+ * ForgotPasswordPage, ResetPasswordPage, and VerifyEmailPage.
+ */
+
+.auth-recovery-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--spacing-6) var(--spacing-4);
+  background-color: var(--color-surface-base);
+  position: relative;
+}
+
+.auth-recovery-card {
+  width: 100%;
+  max-width: 440px;
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-8) var(--spacing-7);
+  display: flex;
+  flex-direction: column;
+  animation: authCardFadeIn var(--transition-normal) ease-out;
+}
+
+@keyframes authCardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-recovery-header {
+  text-align: center;
+  margin-bottom: var(--spacing-6);
+}
+
+.auth-recovery-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
+  text-decoration: none;
+}
+
+.auth-recovery-logo-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background-color: var(--color-brand-500);
+  color: hsl(0, 0%, 100%);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+}
+
+.auth-recovery-logo-name {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.auth-recovery-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-brand-100);
+  color: var(--color-brand-600);
+  margin-bottom: var(--spacing-3);
+}
+
+.auth-recovery-icon-badge--success {
+  background-color: hsl(142, 70%, 92%);
+  color: var(--color-status-success);
+}
+
+.auth-recovery-icon-badge--error {
+  background-color: hsl(0, 85%, 94%);
+  color: var(--color-status-error);
+}
+
+.auth-recovery-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-2) 0;
+  letter-spacing: -0.02em;
+}
+
+.auth-recovery-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+.auth-recovery-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.auth-recovery-alert {
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+}
+
+.auth-recovery-alert--error {
+  background-color: hsl(0, 85%, 96%);
+  color: var(--color-status-error);
+  border: 1px solid hsl(0, 70%, 85%);
+}
+
+.auth-recovery-alert--success {
+  background-color: hsl(142, 70%, 95%);
+  color: var(--color-status-success);
+  border: 1px solid hsl(142, 50%, 80%);
+}
+
+.auth-recovery-footer {
+  margin-top: var(--spacing-6);
+  padding-top: var(--spacing-5);
+  border-top: 1px solid var(--color-border-subtle);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.auth-recovery-link {
+  color: var(--color-brand-600);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.auth-recovery-link:hover {
+  color: var(--color-brand-700);
+  text-decoration: underline;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin: var(--spacing-2) 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background-color: var(--color-border-subtle);
+}
+
+.auth-divider__text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: var(--font-weight-medium);
+}

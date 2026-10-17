@@ -18,6 +18,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 import { Button } from "@/components/Button/Button";
 import { FormField, Input } from "@/components/Input/Input";
+import { GoogleSignInButton } from "./GoogleSignInButton";
+import { PasswordStrengthMeter } from "./PasswordStrengthMeter";
 import type { ApiError } from "@/types/api";
 import "./RegisterPage.css";
 
@@ -308,6 +310,8 @@ export function RegisterPage() {
               />
             </div>
 
+            <PasswordStrengthMeter password={password} />
+
             <Button
               type="submit"
               variant="primary"
@@ -318,6 +322,18 @@ export function RegisterPage() {
             >
               Create Account & Enter Workspace
             </Button>
+
+            <div className="auth-divider" style={{ display: "flex", alignItems: "center", gap: "var(--spacing-3)", margin: "var(--spacing-3) 0" }}>
+              <div style={{ flex: 1, height: "1px", backgroundColor: "var(--color-border-subtle)" }} />
+              <span style={{ fontSize: "var(--font-size-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Or</span>
+              <div style={{ flex: 1, height: "1px", backgroundColor: "var(--color-border-subtle)" }} />
+            </div>
+
+            <GoogleSignInButton
+              label="Sign up with Google"
+              onError={(err) => setError(err)}
+              disabled={isSubmitting}
+            />
 
             <div className="register-page__footer-prompt">
               Already have an account?{" "}

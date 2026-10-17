@@ -32,6 +32,7 @@ import type { AuthState, LoginRequest, RegisterRequest } from "@/types/auth";
 interface AuthContextValue extends AuthState {
   login: (credentials: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
+  googleLogin: (credential: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -104,6 +105,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const googleLogin = useCallback(async (credential: string) => {
+    const tokenResponse = await authApi.googleAuth({ credential });
+    setAccessToken(tokenResponse.access_token);
+
+    const user = await authApi.getCurrentUser();
+    setState({
+      user,
+      accessToken: tokenResponse.access_token,
+      isAuthenticated: true,
+      isLoading: false,
+    });
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
@@ -115,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout }}>
+    <AuthContext.Provider value={{ ...state, login, register, googleLogin, logout }}>
       {children}
     </AuthContext.Provider>
   );

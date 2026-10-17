@@ -73,6 +73,18 @@ class User(UUIDPKMixin, TimestampMixin, Base):
     # Only set for system/platform administrators; not used for clinic owners.
     is_superuser: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
+    # Email verification & Account Activation
+    is_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    verification_token: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
+    verification_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    # Password Recovery
+    password_reset_token: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
+    password_reset_sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    # Social / Enterprise Identity (Google OAuth 2.0)
+    google_id: Mapped[str | None] = mapped_column(String(255), nullable=True, unique=True, index=True)
+
     organization: Mapped["Organization"] = relationship(
         "Organization", back_populates="users"
     )

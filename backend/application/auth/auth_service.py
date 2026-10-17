@@ -20,10 +20,12 @@ Design:
 """
 
 import re
+import secrets
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
+import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import settings
@@ -37,6 +39,7 @@ from core.security import (
 )
 from infrastructure.database.models.organization import Organization
 from infrastructure.database.models.user import RefreshToken, User, UserRole
+from infrastructure.email.email_service import EmailService
 from infrastructure.repositories.audit_repository import AuditEvent, AuditRepository
 from infrastructure.repositories.token_repository import TokenRepository
 from infrastructure.repositories.user_repository import UserRepository
@@ -118,6 +121,20 @@ class AuthService:
             ))
             raise AuthenticationError("Account is inactive")
 
+        if not user.is_verified and settings.mail_enabled:
+            await self._audit.record(AuditEvent(
+                organization_id=user.organization_id,
+                actor_id=user.id,
+                actor_email=user.email,
+                action="user.login.failure",
+                outcome="failure",
+                request_id=ctx.request_id,
+                ip_address=ctx.ip_address,
+                user_agent=ctx.user_agent,
+                metadata={"reason": "unverified_email"},
+            ))
+            raise AuthenticationError("Please verify your email address before logging in. Check your inbox for the confirmation link.")
+
         result = await self._issue_tokens(user, ctx)
 
         await self._audit.record(AuditEvent(
@@ -178,6 +195,9 @@ class AuthService:
         if not role:
             role = await self._users.find_role_by_name("ADMIN")
 
+        verification_token = secrets.token_urlsafe(32)
+        expires_at = datetime.now(tz=UTC) + timedelta(hours=24)
+
         new_user = User(
             organization_id=org.id,
             email=normalized_email,
@@ -185,6 +205,9 @@ class AuthService:
             full_name=full_name.strip(),
             is_active=True,
             is_superuser=False,
+            is_verified=not settings.mail_enabled,
+            verification_token=verification_token,
+            verification_expires_at=expires_at,
         )
         await self._users.add_user(new_user)
 
@@ -196,6 +219,13 @@ class AuthService:
                 assigned_by=None,
             )
             await self._users.assign_role(user_role)
+
+        # Dispatch verification email asynchronously
+        await EmailService.send_verification_email(
+            to_email=new_user.email,
+            recipient_name=new_user.full_name,
+            token=verification_token,
+        )
 
         # Reload user with eager relationships for tokens
         user = await self._users.find_by_id(new_user.id)
@@ -404,3 +434,209 @@ class AuthService:
             refresh_token=raw_refresh_token,
             user=user,
         )
+
+    async def verify_email(self, token: str, ctx: RequestContext) -> User:
+        """
+        Verify a user's email address via the emailed verification token.
+        """
+        user = await self._users.find_by_verification_token(token)
+        if not user or not user.verification_expires_at:
+            raise AuthenticationError("Verification link is invalid or has expired.")
+
+        now_utc = datetime.now(tz=UTC)
+        if now_utc > user.verification_expires_at:
+            raise AuthenticationError("Verification link has expired. Please request a new one.")
+
+        user.is_verified = True
+        user.verification_token = None
+        user.verification_expires_at = None
+        await self._users.update_user(user)
+
+        await self._audit.record(AuditEvent(
+            organization_id=user.organization_id,
+            actor_id=user.id,
+            actor_email=user.email,
+            action="user.email.verified",
+            outcome="success",
+            request_id=ctx.request_id,
+            ip_address=ctx.ip_address,
+            user_agent=ctx.user_agent,
+        ))
+        return user
+
+    async def resend_verification_email(self, email: str, ctx: RequestContext) -> None:
+        """
+        Resend email verification token. Silent on non-existent or verified emails
+        to prevent account enumeration.
+        """
+        user = await self._users.find_by_email(email)
+        if user and user.is_active and not user.is_verified:
+            token = secrets.token_urlsafe(32)
+            user.verification_token = token
+            user.verification_expires_at = datetime.now(tz=UTC) + timedelta(hours=24)
+            await self._users.update_user(user)
+            await EmailService.send_verification_email(user.email, user.full_name, token)
+
+            await self._audit.record(AuditEvent(
+                organization_id=user.organization_id,
+                actor_id=user.id,
+                actor_email=user.email,
+                action="user.verification.resend_requested",
+                outcome="success",
+                request_id=ctx.request_id,
+                ip_address=ctx.ip_address,
+                user_agent=ctx.user_agent,
+            ))
+
+    async def request_password_reset(self, email: str, ctx: RequestContext) -> None:
+        """
+        Request password reset link (1-hour expiry). Silent if email doesn't exist
+        to prevent user enumeration.
+        """
+        user = await self._users.find_by_email(email)
+        if user and user.is_active:
+            token = secrets.token_urlsafe(32)
+            user.password_reset_token = token
+            user.password_reset_sent_at = datetime.now(tz=UTC)
+            await self._users.update_user(user)
+            await EmailService.send_password_reset_email(user.email, user.full_name, token)
+
+            await self._audit.record(AuditEvent(
+                organization_id=user.organization_id,
+                actor_id=user.id,
+                actor_email=user.email,
+                action="user.password_reset.requested",
+                outcome="success",
+                request_id=ctx.request_id,
+                ip_address=ctx.ip_address,
+                user_agent=ctx.user_agent,
+            ))
+        else:
+            await self._audit.record(AuditEvent(
+                organization_id=None,
+                actor_email=email,
+                action="user.password_reset.requested",
+                outcome="failure",
+                request_id=ctx.request_id,
+                ip_address=ctx.ip_address,
+                user_agent=ctx.user_agent,
+                metadata={"reason": "user_not_found"},
+            ))
+
+    async def reset_password(self, token: str, new_password: str, ctx: RequestContext) -> None:
+        """
+        Reset account password using reset token within 1-hour window.
+        Revokes all active sessions for security.
+        """
+        user = await self._users.find_by_reset_token(token)
+        if not user or not user.password_reset_sent_at:
+            raise AuthenticationError("This reset link is invalid or has expired.")
+
+        expiry = user.password_reset_sent_at + timedelta(hours=1)
+        now_utc = datetime.now(tz=UTC)
+        if now_utc > expiry:
+            raise AuthenticationError("This reset link has expired. Please request a new one.")
+
+        user.password_hash = hash_password(new_password)
+        user.password_reset_token = None
+        user.password_reset_sent_at = None
+        await self._users.update_user(user)
+
+        # Invalidate all existing token families
+        await self.revoke_all_sessions(user, ctx, reason="password_reset")
+
+        await self._audit.record(AuditEvent(
+            organization_id=user.organization_id,
+            actor_id=user.id,
+            actor_email=user.email,
+            action="user.password_reset.completed",
+            outcome="success",
+            request_id=ctx.request_id,
+            ip_address=ctx.ip_address,
+            user_agent=ctx.user_agent,
+        ))
+
+    async def authenticate_google_user(self, credential: str, ctx: RequestContext) -> AuthResult:
+        """
+        Verify Google OAuth 2.0 credential and authenticate/provision the user.
+        """
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                res = await client.get(
+                    "https://oauth2.googleapis.com/tokeninfo",
+                    params={"id_token": credential},
+                )
+                if res.status_code != 200:
+                    raise AuthenticationError("Failed to verify Google token with identity provider.")
+                payload = res.json()
+        except httpx.HTTPError as exc:
+            raise AuthenticationError("Google authentication service is currently unavailable.") from exc
+
+        google_id = payload.get("sub")
+        email = (payload.get("email") or "").lower().strip()
+        name = payload.get("name") or (email.split("@")[0] if email else "Google User")
+
+        if not email or not google_id:
+            raise AuthenticationError("Google account does not provide verified email.")
+
+        # Find existing user by google_id or email
+        user = await self._users.find_by_google_id(google_id)
+        if not user:
+            user = await self._users.find_by_email(email)
+            if user:
+                user.google_id = google_id
+                user.is_verified = True
+                await self._users.update_user(user)
+            else:
+                # Provision new user in default organization
+                org = await self._users.find_organization_by_slug("clinora")
+                if not org:
+                    org = await self._users.find_default_organization()
+                if not org:
+                    org = Organization(name="Clinora Clinic", slug="clinora", is_active=True)
+                    await self._users.add_organization(org)
+
+                role = await self._users.find_role_by_name("DOCTOR")
+                if not role:
+                    role = await self._users.find_role_by_name("ADMIN")
+
+                new_user = User(
+                    organization_id=org.id,
+                    email=email,
+                    password_hash=hash_password(secrets.token_urlsafe(32)),
+                    full_name=name,
+                    is_active=True,
+                    is_superuser=False,
+                    is_verified=True,
+                    google_id=google_id,
+                )
+                await self._users.add_user(new_user)
+                if role:
+                    user_role = UserRole(
+                        user_id=new_user.id,
+                        role_id=role.id,
+                        assigned_at=datetime.now(tz=UTC),
+                        assigned_by=None,
+                    )
+                    await self._users.assign_role(user_role)
+                user = await self._users.find_by_id(new_user.id)
+                assert user is not None
+
+        if not user.is_active:
+            raise AuthenticationError("Account is inactive")
+
+        result = await self._issue_tokens(user, ctx)
+
+        await self._audit.record(AuditEvent(
+            organization_id=user.organization_id,
+            actor_id=user.id,
+            actor_email=user.email,
+            action="user.login.google.success",
+            outcome="success",
+            request_id=ctx.request_id,
+            ip_address=ctx.ip_address,
+            user_agent=ctx.user_agent,
+            metadata={"google_id": google_id},
+        ))
+
+        return result

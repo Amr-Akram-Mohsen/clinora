@@ -21,6 +21,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 import { Button } from "@/components/Button/Button";
 import { Input } from "@/components/Input/Input";
+import { GoogleSignInButton } from "./GoogleSignInButton";
 import type { ApiError } from "@/types/api";
 import "./LoginPage.css";
 
@@ -190,17 +191,24 @@ export function LoginPage() {
               disabled={isSubmitting}
             />
 
-            <Input
-              id="login-password"
-              type="password"
-              label="Password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              disabled={isSubmitting}
-            />
+            <div>
+              <Input
+                id="login-password"
+                type="password"
+                label="Password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                disabled={isSubmitting}
+              />
+              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "var(--spacing-1)" }}>
+                <Link to="/forgot-password" className="login-page__link" style={{ fontSize: "var(--font-size-xs)" }}>
+                  Forgot password?
+                </Link>
+              </div>
+            </div>
 
             <Button
               type="submit"
@@ -212,6 +220,22 @@ export function LoginPage() {
             >
               Sign in
             </Button>
+
+            <div className="auth-divider" style={{ display: "flex", alignItems: "center", gap: "var(--spacing-3)", margin: "var(--spacing-3) 0" }}>
+              <div style={{ flex: 1, height: "1px", backgroundColor: "var(--color-border-subtle)" }} />
+              <span style={{ fontSize: "var(--font-size-xs)", color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Or</span>
+              <div style={{ flex: 1, height: "1px", backgroundColor: "var(--color-border-subtle)" }} />
+            </div>
+
+            <GoogleSignInButton onError={(err) => setError(err)} disabled={isSubmitting} />
+
+            {error && error.toLowerCase().includes("verify") && (
+              <div style={{ textAlign: "center", marginTop: "var(--spacing-2)", fontSize: "var(--font-size-xs)" }}>
+                <Link to="/verify-email" className="login-page__link">
+                  Resend verification link
+                </Link>
+              </div>
+            )}
 
             <div className="login-page__footer-prompt">
               Don't have an account?{" "}
