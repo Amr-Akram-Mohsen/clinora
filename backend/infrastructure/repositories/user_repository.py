@@ -22,7 +22,7 @@ from sqlalchemy.orm import selectinload
 
 from infrastructure.database.models.organization import Organization
 from infrastructure.database.models.user import Role, User, UserRole
-
+from typing import Optional
 
 class UserRepository:
     """
@@ -143,3 +143,25 @@ class UserRepository:
         """Flush changes to a modified User entity."""
         await self._session.flush()
         return user
+
+    def find_staff_by_org(self, organization_id: str, skip: int = 0, limit: int = 20, search: Optional[str] = None, role: Optional[str] = None):
+        # Query users belonging to the organization with optional search and role filter
+        query = self._session.query(UserModel).filter(UserModel.organization_id == organization_id)
+        if search:
+            search_term = f"%{search}%"
+            query = query.filter((UserModel.email.ilike(search_term)) | (UserModel.full_name.ilike(search_term)))
+        if role:
+            query = query.join(UserModel.roles).filter(RoleModel.name == role)
+        return query.offset(skip).limit(limit).all()
+
+    def count_staff_by_org(self, organization_id: str, search: Optional[str] = None, role: Optional[str] = None) -> int:
+        query = self._session.query(UserModel).filter(UserModel.organization_id == organization_id)
+        if search:
+            search_term = f"%{search}%"
+            query = query.filter((UserModel.email.ilike(search_term)) | (UserModel.full_name.ilike(search_term)))
+        if role:
+            query = query.join(UserModel.roles).filter(RoleModel.name == role)
+        return query.count()
+
+    def find_organization_by_id(self, org_id: str):
+        return self._session.query(OrganizationModel).filter(OrganizationModel.id == org_id).first()

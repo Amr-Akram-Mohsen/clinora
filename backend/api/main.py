@@ -23,7 +23,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routers import auth, clinical, health, patients
+from api.routers import auth, clinical, health, patients, admin
 from core.config import settings
 from core.errors import (
     AuthenticationError,
@@ -92,6 +92,7 @@ def create_app() -> FastAPI:
     app.include_router(auth.router, prefix="/api/v1")
     app.include_router(patients.router, prefix="/api/v1")
     app.include_router(clinical.router, prefix="/api/v1")
+    app.include_router(admin.router, prefix="/api/v1")
 
     return app
 

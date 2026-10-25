@@ -5,7 +5,7 @@
  * Uses Google Identity Services (GSI) with direct credential callback,
  * with graceful fallback to standard OAuth redirect.
  */
-
+/// <reference types="vite/client" />
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "./AuthProvider";
 import "./GoogleSignInButton.css";

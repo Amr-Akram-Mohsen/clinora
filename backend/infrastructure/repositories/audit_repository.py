@@ -28,7 +28,7 @@ Usage:
 import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -90,3 +90,31 @@ class AuditRepository:
         self._session.add(log)
         await self._session.flush()
         return log
+
+    def find_logs(self, organization_id: str, skip: int = 0, limit: int = 50, action: Optional[str] = None, outcome: Optional[str] = None, actor_email: Optional[str] = None, from_date: Optional[datetime] = None, to_date: Optional[datetime] = None):
+        query = self._session.query(AuditLogModel).filter(AuditLogModel.organization_id == organization_id)
+        if action:
+            query = query.filter(AuditLogModel.action == action)
+        if outcome:
+            query = query.filter(AuditLogModel.outcome == outcome)
+        if actor_email:
+            query = query.filter(AuditLogModel.actor_email.ilike(f"%{actor_email}%"))
+        if from_date:
+            query = query.filter(AuditLogModel.created_at >= from_date)
+        if to_date:
+            query = query.filter(AuditLogModel.created_at <= to_date)
+        return query.order_by(AuditLogModel.created_at.desc()).offset(skip).limit(limit).all()
+
+    def count_logs(self, organization_id: str, action: Optional[str] = None, outcome: Optional[str] = None, actor_email: Optional[str] = None, from_date: Optional[datetime] = None, to_date: Optional[datetime] = None) -> int:
+        query = self._session.query(AuditLogModel).filter(AuditLogModel.organization_id == organization_id)
+        if action:
+            query = query.filter(AuditLogModel.action == action)
+        if outcome:
+            query = query.filter(AuditLogModel.outcome == outcome)
+        if actor_email:
+            query = query.filter(AuditLogModel.actor_email.ilike(f"%{actor_email}%"))
+        if from_date:
+            query = query.filter(AuditLogModel.created_at >= from_date)
+        if to_date:
+            query = query.filter(AuditLogModel.created_at <= to_date)
+        return query.count()
