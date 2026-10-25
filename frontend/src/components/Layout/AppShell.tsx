@@ -155,6 +155,40 @@ export function AppShell({ children }: AppShellProps) {
           </div>
         </header>
 
+        {/* Unverified Email Warning Banner */}
+        {user && user.is_verified === false && (
+          <aside
+            style={{
+              padding: "10px 24px",
+              background: "rgba(234, 179, 8, 0.12)",
+              borderBottom: "1px solid rgba(234, 179, 8, 0.3)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              fontSize: "13px",
+              color: "var(--color-warning-500, #ca8a04)",
+            }}
+            aria-label="Account verification notice"
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span>⚠️</span>
+              <span>
+                Your email address (<strong>{user.email}</strong>) has not been verified yet.
+              </span>
+            </div>
+            <Link
+              to="/verify-email"
+              style={{
+                color: "var(--color-brand-600, #2563eb)",
+                fontWeight: 600,
+                textDecoration: "underline",
+              }}
+            >
+              Verify or resend link →
+            </Link>
+          </aside>
+        )}
+
         {/* Content View */}
         <main className="app-shell__content">{children}</main>
       </div>

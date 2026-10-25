@@ -18,11 +18,18 @@ Design:
 - All responses use explicit Pydantic schemas — ORM objects are never returned raw.
 """
 
+import logging
+import secrets
 import uuid
 from datetime import timedelta
+from urllib.parse import urlencode
 
+import httpx
 from fastapi import APIRouter, Depends, Request, Response
 from fastapi import status as http_status
+from fastapi.responses import RedirectResponse
+
+log = logging.getLogger(__name__)
 
 from api.deps import (
     ActiveUser,
@@ -45,6 +52,7 @@ from api.schemas.auth import (
 from application.auth.auth_service import AuthService, RequestContext
 from core.config import settings
 from core.errors import AuthenticationError
+from infrastructure.email.email_service import EmailService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -107,10 +115,15 @@ async def register(
 
     _set_refresh_cookie(response, result.refresh_token)
 
+    dev_link = None
+    if settings.is_development:
+        dev_link = EmailService.get_latest_verification_link(body.email)
+
     return TokenResponse(
         access_token=result.access_token,
         token_type="bearer",
         expires_in=settings.access_token_expire_minutes * 60,
+        dev_verification_link=dev_link,
     )
 
 
@@ -224,8 +237,12 @@ async def forgot_password(
     ctx = _make_request_context(request)
     service = AuthService(session)
     await service.request_password_reset(body.email, ctx)
+    dev_link = None
+    if settings.is_development:
+        dev_link = EmailService.get_latest_reset_link(body.email)
     return MessageResponse(
-        message="If an account exists with that email, a password reset link has been dispatched."
+        message="If an account exists with that email, a password reset link has been dispatched.",
+        dev_link=dev_link,
     )
 
 
@@ -289,8 +306,12 @@ async def resend_verification(
     ctx = _make_request_context(request)
     service = AuthService(session)
     await service.resend_verification_email(body.email, ctx)
+    dev_link = None
+    if settings.is_development:
+        dev_link = EmailService.get_latest_verification_link(body.email)
     return MessageResponse(
-        message="If an unverified account exists with that email, a verification link has been sent."
+        message="If an unverified account exists with that email, a verification link has been sent.",
+        dev_link=dev_link,
     )
 
 
@@ -320,3 +341,101 @@ async def google_auth(
         token_type="bearer",
         expires_in=settings.access_token_expire_minutes * 60,
     )
+
+
+@router.get("/google/login")
+async def google_login(
+    request: Request,
+    redirect_uri: str | None = None,
+) -> RedirectResponse:
+    """
+    Initiate Google OAuth 2.0 authorization redirect.
+    Directs browser to Google's consent screen.
+    """
+    if not settings.google_client_id:
+        return RedirectResponse(url=f"{settings.frontend_url}/login?error=google_not_configured")
+
+    target_callback = (
+        redirect_uri
+        or settings.google_redirect_uri
+        or f"{settings.frontend_url}/api/v1/auth/google/callback"
+    )
+    state = secrets.token_urlsafe(16)
+
+    params = {
+        "client_id": settings.google_client_id,
+        "redirect_uri": target_callback,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "offline",
+        "prompt": "select_account",
+        "state": state,
+    }
+    google_url = f"https://accounts.google.com/o/oauth2/v2/auth?{urlencode(params)}"
+    return RedirectResponse(url=google_url)
+
+
+@router.get("/google/callback")
+@router.get("/google/authorize")
+async def google_callback(
+    request: Request,
+    response: Response,
+    session: DbSession,
+    code: str | None = None,
+    error: str | None = None,
+    state: str | None = None,
+) -> RedirectResponse:
+    """
+    Handle Google OAuth 2.0 authorization code callback.
+    Exchanges code with Google for identity token, provisions or logs in the user,
+    sets the HTTP-only refresh cookie, and redirects to frontend home.
+    """
+    if error or not code:
+        log.warning("Google OAuth authorization error: %s", error)
+        return RedirectResponse(url=f"{settings.frontend_url}/login?error=google_cancelled")
+
+    target_redirect = (
+        settings.google_redirect_uri
+        or f"{settings.frontend_url}/api/v1/auth/google/callback"
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            token_res = await client.post(
+                "https://oauth2.googleapis.com/token",
+                data={
+                    "code": code,
+                    "client_id": settings.google_client_id,
+                    "client_secret": settings.google_client_secret,
+                    "redirect_uri": target_redirect,
+                    "grant_type": "authorization_code",
+                },
+            )
+            if token_res.status_code != 200:
+                log.error("Google token exchange failure (%s): %s", token_res.status_code, token_res.text)
+                return RedirectResponse(url=f"{settings.frontend_url}/login?error=google_token_exchange_failed")
+
+            token_data = token_res.json()
+            id_token_str = token_data.get("id_token")
+    except Exception as exc:
+        log.error("Google OAuth token request error: %s", exc)
+        return RedirectResponse(url=f"{settings.frontend_url}/login?error=google_service_error")
+
+    if not id_token_str:
+        return RedirectResponse(url=f"{settings.frontend_url}/login?error=google_missing_token")
+
+    ctx = _make_request_context(request)
+    service = AuthService(session)
+    result = await service.authenticate_google_user(id_token_str, ctx)
+
+    redirect_resp = RedirectResponse(url=f"{settings.frontend_url}/", status_code=http_status.HTTP_302_FOUND)
+    redirect_resp.set_cookie(
+        key=_COOKIE_NAME,
+        value=result.refresh_token,
+        max_age=_COOKIE_MAX_AGE,
+        httponly=True,
+        samesite="lax",
+        secure=settings.is_production,
+        path="/auth",
+    )
+    return redirect_resp

@@ -25,6 +25,7 @@ export function VerifyEmailPage() {
   const [resendEmail, setResendEmail] = useState("");
   const [isResending, setIsResending] = useState(false);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const [devLink, setDevLink] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -64,10 +65,14 @@ export function VerifyEmailPage() {
 
     setIsResending(true);
     setResendMessage(null);
+    setDevLink(null);
 
     try {
       const res = await authApi.resendVerification({ email: resendEmail.toLowerCase().trim() });
       setResendMessage(res.message);
+      if (res.dev_link) {
+        setDevLink(res.dev_link);
+      }
     } catch (err) {
       const apiErr = err as ApiError;
       setResendMessage(apiErr.message ?? "Could not send verification email.");
@@ -178,6 +183,25 @@ export function VerifyEmailPage() {
             {resendMessage && (
               <div className="auth-recovery-alert auth-recovery-alert--success">
                 {resendMessage}
+              </div>
+            )}
+
+            {devLink && (
+              <div style={{ marginTop: "var(--spacing-3)", textAlign: "center" }}>
+                <a
+                  href={devLink}
+                  className="auth-recovery-link"
+                  style={{
+                    display: "inline-block",
+                    padding: "8px 16px",
+                    background: "var(--color-brand-100)",
+                    color: "var(--color-brand-700)",
+                    borderRadius: "var(--radius-md)",
+                    fontWeight: 600,
+                  }}
+                >
+                  ⚡ Click here to activate account directly
+                </a>
               </div>
             )}
           </div>

@@ -20,6 +20,7 @@ export interface TokenResponse {
   access_token: string;
   token_type: string;
   expires_in: number; // seconds
+  dev_verification_link?: string;
 }
 
 export interface LoginRequest {
@@ -59,6 +60,7 @@ export interface GoogleAuthRequest {
 export interface MessageResponse {
   message: string;
   success: boolean;
+  dev_link?: string;
 }
 
 /**

@@ -84,6 +84,17 @@ def _render_email_html(
 class EmailService:
     """Async email dispatcher with SMTP and local development fallback."""
 
+    _latest_verification_links: dict[str, str] = {}
+    _latest_reset_links: dict[str, str] = {}
+
+    @classmethod
+    def get_latest_verification_link(cls, email: str) -> str | None:
+        return cls._latest_verification_links.get(email.lower().strip())
+
+    @classmethod
+    def get_latest_reset_link(cls, email: str) -> str | None:
+        return cls._latest_reset_links.get(email.lower().strip())
+
     @classmethod
     def _send_smtp_sync(cls, to_email: str, subject: str, html_content: str, text_content: str) -> bool:
         """Synchronous SMTP transport executed in a thread pool."""
@@ -95,26 +106,39 @@ class EmailService:
         msg.add_alternative(html_content, subtype="html")
 
         try:
-            with smtplib.SMTP(settings.mail_server, settings.mail_port, timeout=15) as server:
+            with smtplib.SMTP(settings.mail_server, settings.mail_port, timeout=12) as server:
+                server.ehlo()
                 if settings.mail_use_tls:
                     server.starttls()
+                    server.ehlo()
                 if settings.mail_username and settings.mail_password:
                     server.login(settings.mail_username, settings.mail_password)
                 server.send_message(msg)
             log.info("Email sent to %s with subject: %s", to_email, subject)
             return True
         except Exception as e:
-            log.error("Failed to send email to %s via SMTP: %s", to_email, e)
+            log.warning("Could not dispatch email to %s via SMTP (%s)", to_email, e)
+            print("\n" + "=" * 64)
+            print(f"[CLINORA EMAIL DISPATCH NOTICE] Recipient: {to_email}")
+            print(f"Subject: {subject}")
+            print(f"SMTP status: {e}")
+            print("=" * 64 + "\n")
             return False
 
     @classmethod
     async def send_verification_email(cls, to_email: str, recipient_name: str, token: str) -> bool:
         """Send account email verification link."""
+        normalized_email = to_email.lower().strip()
         verify_url = f"{settings.frontend_url}/verify-email/{token}"
+        cls._latest_verification_links[normalized_email] = verify_url
+
+        print("\n" + "=" * 64)
+        print(f"[CLINORA VERIFICATION LINK] Recipient: {normalized_email}")
+        print(f"Click or open in browser: {verify_url}")
+        print("=" * 64 + "\n")
 
         if not settings.mail_enabled:
             log.info("[EMAIL DISABLED] Verification link for %s: %s", to_email, verify_url)
-            print(f"\n[EMAIL DEV MOCK] Verification link for {to_email}:\n{verify_url}\n")
             return True
 
         subject = "Verify your Clinora account"
@@ -142,11 +166,17 @@ class EmailService:
     @classmethod
     async def send_password_reset_email(cls, to_email: str, recipient_name: str, token: str) -> bool:
         """Send password recovery link (1-hour expiry)."""
+        normalized_email = to_email.lower().strip()
         reset_url = f"{settings.frontend_url}/reset-password/{token}"
+        cls._latest_reset_links[normalized_email] = reset_url
+
+        print("\n" + "=" * 64)
+        print(f"[CLINORA PASSWORD RESET LINK] Recipient: {normalized_email}")
+        print(f"Click or open in browser: {reset_url}")
+        print("=" * 64 + "\n")
 
         if not settings.mail_enabled:
             log.info("[EMAIL DISABLED] Password reset link for %s: %s", to_email, reset_url)
-            print(f"\n[EMAIL DEV MOCK] Password reset link for {to_email}:\n{reset_url}\n")
             return True
 
         subject = "Reset your Clinora password"
@@ -173,3 +203,4 @@ class EmailService:
         )
 
         return await asyncio.to_thread(cls._send_smtp_sync, to_email, subject, html, plain)
+

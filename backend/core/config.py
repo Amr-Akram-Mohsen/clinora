@@ -61,6 +61,7 @@ class Settings(BaseSettings):
     # Google OAuth 2.0
     google_client_id: str | None = None
     google_client_secret: str | None = None
+    google_redirect_uri: str | None = None
     frontend_url: str = "http://localhost:5173"
 
     @field_validator("app_env")

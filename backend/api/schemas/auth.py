@@ -66,6 +66,7 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     expires_in: int  # seconds until access token expires
+    dev_verification_link: str | None = None
 
 
 class UserRoleRead(BaseModel):
@@ -144,4 +145,6 @@ class GoogleAuthRequest(BaseModel):
 class MessageResponse(BaseModel):
     message: str
     success: bool = True
+    dev_link: str | None = None
+
 
